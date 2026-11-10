@@ -1,0 +1,269 @@
+<title>Market Research Demo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@500;600&display=swap">
+<style>
+/* Layout: one-screen app — slim ticker → title bar with student chip → step pills → two-column step panel (brief | findings).
+   Deliberately single light theme to match the Founder's Research Lab; every color set explicitly. Blue leads (market lens). */
+:root{
+  color-scheme: light;
+  --paper:#F4F7FB; --card:#FBFCFE; --ink:#0B1F3A; --muted:#4A5B75; --line:#D5DFEC;
+  --accent:#1C5AD0; --accent-soft:#E2EBFB; --accent-2:#08766D;
+  --gold:#EDB21C; --gold-soft:#FFF4D4; --gold-ink:#6E4E00;
+  --f-body:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --f-mono:"Fira Code",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--ink)}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+h1,h2,h3{text-wrap:balance;margin:0;line-height:1.15}
+p{margin:0}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mono{font-family:var(--f-mono)}
+.tag{font-family:var(--f-mono);font-size:.68rem;font-weight:600;letter-spacing:.05em;color:var(--muted)}
+
+.ticker{background:var(--ink);color:#fff;overflow:hidden;white-space:nowrap;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.04em}
+.ticker-track{display:inline-flex;gap:2.2rem;padding-block:.3rem;animation:tick 46s linear infinite;padding-left:2rem}
+.ticker b{color:var(--gold);font-weight:600}.ticker .up{color:#5FE0C4}
+@keyframes tick{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion: reduce){.ticker-track{animation:none}}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding-block:.9rem .7rem;flex-wrap:wrap}
+.top .eyebrow{font-family:var(--f-mono);font-size:.7rem;font-weight:600;letter-spacing:.08em;color:var(--accent)}
+.top h1{font-size:1.65rem;font-weight:800;letter-spacing:-.02em}
+.top h1 span{color:var(--accent)}
+.student{display:flex;gap:.7rem;align-items:center;background:var(--card);border:2px solid var(--ink);border-radius:14px;box-shadow:4px 4px 0 var(--ink);padding:.5rem .8rem;max-width:460px}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;flex:none}
+.student b{font-size:.9rem}
+.student span{font-size:.8rem;color:var(--muted);display:block;line-height:1.35}
+
+.stepper{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:.35rem}
+.stepper button{font:inherit;cursor:pointer;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:.35rem .5rem;color:var(--ink);font-weight:700;font-size:.78rem;line-height:1.2;text-align:left;min-width:0;display:flex;gap:.4rem;align-items:center}
+.stepper button i{font-style:normal;font-family:var(--f-mono);font-size:.68rem;color:var(--muted);flex:none}
+.stepper button:hover{border-color:var(--ink)}
+.stepper button.done{border-color:var(--accent);background:var(--accent-soft)}
+.stepper button[aria-current="step"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.stepper button[aria-current="step"] i{color:#E2EBFB}
+.progress{height:5px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:.4rem}
+.progress i{display:block;height:100%;background:var(--gold);transition:width .3s}
+
+.head{display:flex;justify-content:space-between;align-items:center;gap:.8rem;margin-block:.8rem .6rem;flex-wrap:wrap}
+.head h2{font-size:1.35rem;font-weight:800;letter-spacing:-.01em}
+.head .left{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;min-width:0}
+.phase{font-family:var(--f-mono);font-size:.66rem;font-weight:600;background:var(--ink);color:var(--gold);border-radius:6px;padding:.2rem .5rem;white-space:nowrap}
+.navbtns{display:flex;gap:.4rem}
+.btn{font:inherit;font-weight:700;font-size:.85rem;cursor:pointer;border-radius:999px;padding:.4rem .9rem;border:2px solid var(--ink);background:var(--card);color:var(--ink)}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.primary:hover{background:var(--accent);border-color:var(--accent)}
+.btn:disabled{opacity:.35;cursor:default}
+
+.panel{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:1rem;align-items:start}
+.side{display:grid;gap:.6rem;min-width:0}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.75rem .85rem;display:grid;gap:.45rem;min-width:0}
+.q{font-weight:700;font-size:1rem;line-height:1.35}
+.src{display:grid;gap:.3rem}
+.src div{display:flex;flex-wrap:wrap;gap:.1rem .45rem;align-items:baseline;font-size:.84rem;min-width:0}
+.src div em{font-style:normal;color:var(--muted)}
+.badge{font-family:var(--f-mono);font-size:.6rem;font-weight:600;padding:.1rem .35rem;border-radius:5px;white-space:nowrap;flex:none}
+.badge.lib{background:var(--gold-soft);color:var(--gold-ink);border:1px solid var(--gold)}
+.badge.web{background:var(--accent-soft);color:var(--accent)}
+.badge.you{background:#DBF2EF;color:var(--accent-2)}
+.chips{display:flex;flex-wrap:wrap;gap:.3rem}
+.chip{font-family:var(--f-mono);font-size:.66rem;font-weight:600;padding:.15rem .45rem;border-radius:5px;background:var(--accent-soft);color:var(--accent)}
+.turn{background:var(--gold-soft);border:2px solid var(--gold);border-radius:12px;padding:.65rem .8rem;display:grid;gap:.2rem;font-size:.88rem}
+.turn .tag{color:var(--gold-ink)}
+
+.found{background:var(--card);border:2px solid var(--ink);border-radius:16px;box-shadow:6px 6px 0 var(--accent);padding:1rem 1.1rem;display:grid;gap:.75rem;min-width:0;align-content:start}
+.found > .tag{color:var(--accent)}
+.found h3{font-size:.95rem;font-weight:800}
+.practice{font-family:var(--f-mono);font-size:.6rem;font-weight:600;color:var(--gold-ink);background:var(--gold-soft);border-radius:4px;padding:.05rem .35rem;margin-left:.35rem;vertical-align:2px;white-space:nowrap}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.8rem;align-items:start}
+.rows{display:grid;gap:.35rem}
+.rows div{display:flex;gap:.55rem;align-items:baseline;padding:.45rem .6rem;background:var(--paper);border-radius:8px;font-size:.88rem}
+.rows b{font-family:var(--f-mono);font-size:.66rem;color:var(--accent);flex:none}
+.hl{font-weight:800;background:var(--accent);color:#fff;border-radius:10px;padding:.6rem .8rem;font-size:.95rem}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:440px}
+th{background:var(--ink);color:#fff;text-align:left;font-family:var(--f-mono);font-size:.64rem;letter-spacing:.05em;font-weight:600;padding:.45rem .6rem}
+td{padding:.42rem .6rem;border-top:1px solid var(--line);vertical-align:top}
+tr.gap td{background:var(--gold-soft)}
+.bars{display:grid;gap:.35rem}
+.bar-row{display:grid;grid-template-columns:52px minmax(0,1fr) 42px;gap:.5rem;align-items:center;font-size:.82rem}
+.bar-track{height:16px;border-radius:5px;background:var(--paper);overflow:hidden;background-image:linear-gradient(to right,var(--line) 1px,transparent 1px);background-size:25% 100%}
+.bar-track i{display:block;height:100%;background:var(--accent);border-radius:5px}
+.bar-val{font-family:var(--f-mono);font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.tile{background:var(--paper);border-radius:10px;padding:.55rem .7rem;display:grid}
+.tile .v{font-family:var(--f-mono);font-size:1.25rem;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+.tile .k{font-size:.78rem;color:var(--muted)}
+.persona{display:flex;gap:.7rem;align-items:center;background:var(--accent-soft);border-radius:10px;padding:.6rem .7rem;font-size:.86rem}
+.persona .avatar{background:var(--ink);color:var(--gold)}
+.pills{display:flex;flex-wrap:wrap;gap:.3rem}
+.pills span{font-size:.76rem;font-weight:600;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:.15rem .55rem}
+.funnel{display:grid;gap:.3rem}
+.funnel div{border-radius:8px;padding:.4rem .7rem;color:#fff;display:flex;justify-content:space-between;gap:.6rem;font-size:.84rem;margin-inline:auto}
+.funnel b{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.math{font-family:var(--f-mono);font-size:.8rem;background:var(--ink);color:#fff;border-radius:10px;padding:.6rem .75rem;line-height:1.6}
+.math b{color:var(--gold)}
+.chart svg{width:100%;height:auto;display:block;max-height:170px}
+.legend{display:flex;gap:1rem;font-size:.78rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:12px;height:4px;border-radius:2px;margin-right:.35rem;vertical-align:3px;background:var(--accent)}
+.legend span.g::before{background:var(--gold)}
+.brief{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
+.brief div{padding:.5rem .6rem;border-radius:8px;background:var(--paper);font-size:.82rem;display:grid;gap:.1rem}
+.brief b{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.04em;color:var(--accent)}
+.cta{display:inline-flex;align-items:center;gap:.4rem;font-weight:800;font-size:.88rem;text-decoration:none;background:var(--accent-2);color:#fff;border-radius:999px;padding:.5rem 1rem;border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);justify-self:start}
+.cta:hover{background:var(--ink)}
+.small{font-size:.84rem;color:var(--muted)}
+
+footer{padding-block:.9rem 1.2rem;font-size:.78rem;color:var(--muted)}
+footer p{display:flex;gap:.4rem 1rem;flex-wrap:wrap}
+
+@media (max-width: 900px){
+  .panel{grid-template-columns:1fr}
+  .stepper{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (max-width: 560px){
+  .stepper{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .two,.brief{grid-template-columns:1fr}
+  .student{max-width:none}
+}
+</style>
+
+<div class="ticker" aria-hidden="true"><div class="ticker-track">
+<span><b>MKT</b> WHO BUYS? <span class="up">▲</span></span><span><b>MKT</b> HOW MANY? <span class="up">▲</span></span><span><b>MKT</b> WHO ELSE SELLS? <span class="up">▲</span></span><span><b>MKT</b> IS DEMAND GROWING? <span class="up">▲</span></span><span><b>DATA</b> BACK EVERY DECISION <span class="up">▲</span></span>
+<span><b>MKT</b> WHO BUYS? <span class="up">▲</span></span><span><b>MKT</b> HOW MANY? <span class="up">▲</span></span><span><b>MKT</b> WHO ELSE SELLS? <span class="up">▲</span></span><span><b>MKT</b> IS DEMAND GROWING? <span class="up">▲</span></span><span><b>DATA</b> BACK EVERY DECISION <span class="up">▲</span></span>
+</div></div>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="eyebrow">MARKET RESEARCH DEMO · ZOOM OUT</p>
+      <h1>From a hunch to a <span>market brief</span></h1>
+    </div>
+    <div class="student">
+      <div class="avatar" aria-hidden="true">M</div>
+      <p><b>Maya, grade 10</b><span>Idea: a healthy grab-and-go snack for teen athletes who train before school. Maya and numbers marked “practice” are made up.</span></p>
+    </div>
+  </header>
+
+  <nav class="stepper" id="stepper" aria-label="Research steps"></nav>
+  <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+
+  <div class="head">
+    <div class="left"><span class="tag" id="count">STEP 1 OF 8</span><h2 id="title"></h2><span class="phase" id="phase"></span></div>
+    <div class="navbtns"><button type="button" class="btn" id="back">← Back</button><button type="button" class="btn primary" id="next">Next →</button></div>
+  </div>
+
+  <main class="panel" id="panel" aria-live="polite"></main>
+
+  <footer>
+    <p><span>Databases: myLibrary › <a href="https://gulliverschools.libguides.com/az/databases" target="_blank" rel="noopener">A-Z Databases</a></span><span>Next: <a href="product-demo.html" target="_blank" rel="noopener">Product Research Demo ↗</a></span><span><a href="https://sites.google.com/gulliverprep.org/entrepreneurship-research?usp=sharing" target="_blank" rel="noopener">Founder’s Research Lab ↗</a></span></p>
+  </footer>
+</div>
+
+<script>
+(function(){
+const LIB=n=>({t:"lib",n,w:"myLibrary"}), WEB=(n,u)=>({t:"web",n,u}), YOU=(n,w)=>({t:"you",n,w});
+const STEPS=[
+{s:"Idea",p:"START",title:"Spot a problem worth solving",
+ q:"What problem do I keep noticing, and who has it?",
+ src:[YOU("Her own observations","at early practice"),YOU("Talks with teammates","informal")],
+ feeds:["Executive summary"], turn:"Write one sentence: who has the problem, and what is it?",
+ f:`<div class="rows"><div><b>01</b>Teammates skip breakfast before 6:30 a.m. practice.</div><div><b>02</b>The vending machine by the field sells only chips and candy.</div><div><b>03</b>Parents keep asking for healthier options at games.</div></div>
+ <p class="hl">Hunch: teen athletes want a healthy snack they can grab fast.</p><p class="small">A hunch isn’t proof. Every next step tests it.</p>`},
+{s:"Questions",p:"PLAN",title:"Turn the hunch into research questions",
+ q:"What do I need to prove in my business plan?",
+ src:[WEB("SBA: Market research guide","https://www.sba.gov/business-guide/plan-your-business/market-research-competitive-analysis"),WEB("Founder’s Research Lab","https://sites.google.com/gulliverprep.org/entrepreneurship-research?usp=sharing")],
+ feeds:["Every market section"], turn:"List five questions your plan must answer and match each to a plan section.",
+ f:`<div class="tbl"><table><tr><th>Question</th><th>Plan section</th><th>Where to look</th></tr>
+ <tr><td>What does the snack industry look like?</td><td>Industry analysis</td><td>Gale, Statista</td></tr>
+ <tr><td>Who exactly is my customer?</td><td>Target market</td><td>Census, Pew</td></tr>
+ <tr><td>How many can I reach?</td><td>Market size</td><td>Census, BLS</td></tr>
+ <tr><td>Who else sells to them?</td><td>Competitive analysis</td><td>Gale, Nexis Uni</td></tr>
+ <tr><td>Is demand growing?</td><td>Industry analysis</td><td>Google Trends</td></tr></table></div>`},
+{s:"Industry",p:"SECONDARY",title:"Get the big picture of the industry",
+ q:"How big and crowded is the snack industry, and where is it heading?",
+ src:[LIB("Gale Business: Insights"),LIB("Statista"),WEB("NAICS lookup","https://www.census.gov/naics/"),WEB("Trade.gov industries","https://www.trade.gov/industries")],
+ feeds:["Industry analysis"], turn:"Find your NAICS code, then read one industry overview in Gale Business: Insights.",
+ f:`<div class="two"><div style="display:grid;gap:.5rem"><div class="tile"><span class="k">Industry code (NAICS)</span><span class="v">311919</span><span class="k">Other Snack Food Manufacturing</span></div>
+ <p class="small">Crowded and led by national brands, but healthy, high-protein snacks are a growing slice. <span class="practice">PRACTICE</span></p></div>
+ <div style="display:grid;gap:.4rem"><h3>Healthy share of new launches <span class="practice">PRACTICE</span></h3><div class="bars" role="img" aria-label="Practice numbers rising from 12 percent in 2022 to 23 percent in 2025">
+ <div class="bar-row"><span>2022</span><span class="bar-track"><i style="width:12%"></i></span><span class="bar-val">12%</span></div>
+ <div class="bar-row"><span>2023</span><span class="bar-track"><i style="width:15%"></i></span><span class="bar-val">15%</span></div>
+ <div class="bar-row"><span>2024</span><span class="bar-track"><i style="width:19%"></i></span><span class="bar-val">19%</span></div>
+ <div class="bar-row"><span>2025</span><span class="bar-track"><i style="width:23%"></i></span><span class="bar-val">23%</span></div></div></div></div>`},
+{s:"Target market",p:"SECONDARY",title:"Define exactly who the customer is",
+ q:"Who will buy my snack, where do they live, and how do they act?",
+ src:[WEB("data.census.gov","https://data.census.gov/"),WEB("Pew Research Center","https://www.pewresearch.org/"),LIB("Statista")],
+ feeds:["Target market"], turn:"Build a customer persona and back it up with real Census or Pew data.",
+ f:`<div class="persona"><div class="avatar" aria-hidden="true">J</div><p><b>Persona: Jordan, 16</b> <span class="practice">MADE UP</span><br>Soccer at 6:30 a.m., about $10 a week for snacks, wants energy without junk food.</p></div>
+ <div class="pills"><span>Age 14–18</span><span>Miami-Dade</span><span>Trains before school</span><span>Values health and convenience</span></div>
+ <div class="two"><div class="tile"><span class="v">140,000</span><span class="k">Teens 14–18 in the county <span class="practice">PRACTICE</span></span></div><div class="tile"><span class="v">4,000</span><span class="k">Athletes at 5 nearby schools <span class="practice">PRACTICE</span></span></div></div>`},
+{s:"Market size",p:"ANALYSIS",title:"Estimate how big the market is",
+ q:"How many customers can I realistically reach, and what could they spend?",
+ src:[WEB("BLS Consumer Expenditure Surveys","https://www.bls.gov/cex/"),LIB("Statista"),WEB("data.census.gov","https://data.census.gov/")],
+ feeds:["Market size","Financial projections"], turn:"Narrow your market from everyone to realistic first-year buyers, and show your math.",
+ f:`<h3>From everyone to first buyers <span class="practice">PRACTICE</span></h3>
+ <div class="funnel"><div style="background:#0B1F3A;width:100%"><span>All teens in the county</span><b>140,000</b></div><div style="background:#1C5AD0;width:86%"><span>Teen athletes</span><b>45,000</b></div><div style="background:#3E74DB;width:70%"><span>Athletes she can reach</span><b>4,000</b></div><div style="background:#08766D;width:54%"><span>Year-one buyers</span><b>400</b></div></div>
+ <div class="math">400 buyers × 2 snacks/week × $2.50 × 36 weeks = <b>$72,000</b> possible sales</div>`},
+{s:"Competitors",p:"SECONDARY",title:"Size up the competition",
+ q:"Who already sells snacks to teen athletes, and where do they fall short?",
+ src:[LIB("Gale Business: Insights ★"),LIB("Nexis Uni"),WEB("SEC EDGAR","https://www.sec.gov/edgar/search/"),WEB("Sunbiz","https://dos.fl.gov/sunbiz/")],
+ feeds:["Competitive analysis"], turn:"Look up three real competitors in Gale Business: Insights and note each one’s weakness.",
+ f:`<div class="tbl"><table><tr><th>Competitor type</th><th>Strength</th><th>Weakness</th></tr>
+ <tr><td>National protein bar</td><td>Trusted, high protein</td><td>Not sold at school, pricey</td></tr>
+ <tr><td>Vending machine chips</td><td>Right there, cheap</td><td>Not healthy</td></tr>
+ <tr><td>Local smoothie café</td><td>Fresh, healthy</td><td>Opens after practice</td></tr>
+ <tr class="gap"><td><b>The gap</b></td><td colspan="2">No healthy, low-cost snack <b>at school before practice</b>.</td></tr></table></div>
+ <p class="small">In a real plan, name actual companies from Gale Business: Insights and cite their profiles.</p>`},
+{s:"Trends",p:"SECONDARY",title:"Check whether demand is growing",
+ q:"Are more people looking for healthy snacks than before?",
+ src:[WEB("Google Trends","https://trends.google.com/"),LIB("Nexis Uni"),WEB("Bloomberg sectors","https://www.bloomberg.com/markets/sectors"),WEB("FRED","https://fred.stlouisfed.org/")],
+ feeds:["Industry analysis","Marketing plan"], turn:"Compare two search terms for your idea in Google Trends and describe the pattern.",
+ f:`<h3>Search interest over five years <span class="practice">PRACTICE</span></h3>
+ <div class="chart" role="img" aria-label="Practice chart: interest in protein snacks rises while chips stay flat"><svg viewBox="0 0 560 170" aria-hidden="true"><rect x="0" y="0" width="560" height="170" rx="10" fill="#F4F7FB"/><g stroke="#D5DFEC" stroke-width="1.5"><line x1="20" y1="45" x2="540" y2="45"/><line x1="20" y1="90" x2="540" y2="90"/><line x1="20" y1="135" x2="540" y2="135"/></g><polyline points="30,140 130,128 230,114 330,92 430,70 530,38" fill="none" stroke="#1C5AD0" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><polyline points="30,86 130,82 230,88 330,84 430,87 530,85" fill="none" stroke="#EDB21C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="530" cy="38" r="7" fill="#1C5AD0"/></svg></div>
+ <div class="legend"><span>“protein snacks”</span><span class="g">“chips”</span></div>
+ <p class="small">Rising interest helps, but it doesn’t prove people will buy <b>her</b> snack. Product research tests that.</p>`},
+{s:"Market brief",p:"RESULT",title:"Pull it together: Maya’s market brief",
+ q:"What does all my evidence add up to?",
+ src:[YOU("Every source above","logged in NoodleTools")],
+ feeds:["Market analysis","Executive summary"], turn:"Write your own six-part market brief. Every line needs a cited source.",
+ f:`<div class="brief">
+ <div><b>OPPORTUNITY</b>No healthy, affordable snack on campus before practice</div>
+ <div><b>INDUSTRY</b>Crowded, but the healthy slice is growing</div>
+ <div><b>CUSTOMER</b>Athletes 14–18 at five nearby schools</div>
+ <div><b>MARKET SIZE</b>About 400 buyers, ~$72,000 (practice)</div>
+ <div><b>COMPETITION</b>Protein bars, vending chips, smoothie cafés</div>
+ <div><b>TREND</b>Interest in protein snacks keeps rising</div></div>
+ <p class="hl">Verdict: a real, reachable market. Next: is her snack the right product?</p>
+ <a class="cta" href="product-demo.html" target="_blank" rel="noopener">Continue to the Product Research Demo ↗</a>`}
+];
+const stepper=document.getElementById('stepper'),panel=document.getElementById('panel'),prog=document.getElementById('prog');
+const back=document.getElementById('back'),next=document.getElementById('next');
+const title=document.getElementById('title'),phase=document.getElementById('phase'),count=document.getElementById('count');
+let cur=0;
+STEPS.forEach((s,i)=>{const b=document.createElement('button');b.type='button';b.id='step-btn-'+(i+1);b.innerHTML='<i>'+(i+1)+'</i>'+s.s;b.addEventListener('click',()=>go(i,true));stepper.appendChild(b);});
+const src=x=>'<div><span class="badge '+x.t+'">'+(x.t==='lib'?'LIBRARY':x.t==='web'?'WEB':'PRIMARY')+'</span>'+(x.u?'<a href="'+x.u+'" target="_blank" rel="noopener">'+x.n+' ↗</a>':'<span>'+x.n+'</span>')+(x.w?' <em>· '+x.w+'</em>':'')+'</div>';
+function go(i,focus){
+  cur=Math.max(0,Math.min(STEPS.length-1,i));const s=STEPS[cur];
+  [...stepper.children].forEach((b,j)=>{b.classList.toggle('done',j<cur);j===cur?b.setAttribute('aria-current','step'):b.removeAttribute('aria-current');});
+  prog.style.width=((cur+1)/STEPS.length*100)+'%';
+  count.textContent='STEP '+(cur+1)+' OF '+STEPS.length;title.textContent=s.title;phase.textContent=s.p;
+  panel.innerHTML='<div class="side"><div class="box"><span class="tag">MAYA’S QUESTION</span><p class="q">'+s.q+'</p></div>'+
+    '<div class="box"><span class="tag">WHERE SHE LOOKED</span><div class="src">'+s.src.map(src).join('')+'</div></div>'+
+    '<div class="box"><span class="tag">FEEDS PLAN SECTION</span><div class="chips">'+s.feeds.map(f=>'<span class="chip">'+f+'</span>').join('')+'</div></div>'+
+    '<div class="turn"><span class="tag">YOUR TURN</span>'+s.turn+'</div></div>'+
+    '<section class="found"><span class="tag">WHAT SHE FOUND</span>'+s.f+'</section>';
+  back.disabled=cur===0;next.disabled=cur===STEPS.length-1;
+  try{history.replaceState(null,'','#step-'+(cur+1));}catch(e){}
+  if(focus)stepper.children[cur].focus();
+}
+back.addEventListener('click',()=>go(cur-1));next.addEventListener('click',()=>go(cur+1));
+document.addEventListener('keydown',e=>{if(e.target.closest('a,input,textarea'))return;if(e.key==='ArrowRight'){go(cur+1);}if(e.key==='ArrowLeft'){go(cur-1);}});
+function fromHash(){const m=/^#step-(\d+)$/.exec(location.hash);go(m?parseInt(m[1],10)-1:0);}
+window.addEventListener('hashchange',fromHash);fromHash();
+})();
+</script>
